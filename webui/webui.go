@@ -3,6 +3,7 @@ package webui
 import (
 	_ "embed"
 	"github.com/dustin/go-humanize"
+	"github.com/lpar/gzipped/v2"
 	"html/template"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ func RunWebUI() error {
 	if err != nil {
 		return err
 	}
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static")))
+	fs := http.StripPrefix("/static/", gzipped.FileServer(gzipped.Dir("./static")))
 	http.Handle("/static/", fs)
 	http.HandleFunc("/", rootHandler)
 	return http.ListenAndServe(":8999", nil)
