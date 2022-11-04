@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" charset="utf-8">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>nixeepass</title>
+    <link rel="stylesheet" href="static/bulma.min.css"/>
+    <link rel="stylesheet" href="static/fontawesome/css/all.min.css"/>
+</head>
+<body class="has-background-light">
+<div class="box">
+    <p class="title has-text-centered has-text-black"><i
+            class="fa-solid fa-unlock-keyhole"></i> nixeepass</p>
+    <div class="card {{ .ContentSection }}">
+        <div class="card-header has-background-success-dark">
+            <p class="card-header-title has-text-success-light">
+                Welcome NameHere
+            </p>
+        </div>
+        <div class="card-content has-background-success-light">
+            <div>Here is a list of devices with access to your password
+                database:
+            </div>
+            <div>&nbsp;</div>
+            <div class="table is-centered is-striped is-bordered">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Registered</th>
+                        <th>Last Accessed</th>
+                        <th>User Agent</th>
+                        <th>Last IP Address</th>
+                        <th>Revoke</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{ range .Devices }}
+                    <tr>
+                        <td>Today</td>
+                        <td>Never</td>
+                        <td>
+                            <span class="tag is-info">
+                                <span class="icon">
+                                    <i class="{{.Browser | FA}}"></i>
+                                </span>
+                                <span>{{.Browser | Title}}</span>
+                            </span>
+                            <span class="tag is-link">
+                                <span class="icon">
+                                    <i class="{{.OS | FA}}"></i>
+                                </span>
+                                <span>{{.OS | Title}}</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="tag is-family-code">127.0.0.1</span>
+                            <span class="tag is-dark">
+                                <span class="icon">
+                                    <i class="{{.Country | FA}}"></i>
+                                </span>
+                                <span>{{.Country | ToLower | Title}}</span>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="button is-danger is-small" onclick="this.classList.add('is-loading')">
+                                <span class="icon">
+                                    <i class="fa-solid fa-ban"></i>
+                                </span>
+                                <span>
+                                    <abbr title="Revoke device access">Revoke</abbr>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </div>
+            <div>&nbsp;</div>
+            <div>&nbsp;</div>
+            <div>To grant access to a new application, generate a new URL
+                here:
+            </div>
+            <div>&nbsp;</div>
+            <div class="button is-success" onclick="this.classList.add('is-loading')">
+                <span class="icon">
+                    <i class="fa-solid fa-circle-plus"></i>
+                </span>
+                <span>Grant Access</span>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal {{ .LoginSection }}">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="message has-text-centered">
+                <div class="message-header has-background-danger-dark">Sign-in
+                    required
+                </div>
+                <div class="message-body has-background-danger-light">
+                    <div>In order to access this page you need to log in with
+                        your {{ .BrandName }} account.
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="button is-primary is-large" onclick="this.classList.add('is-loading')">Login</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

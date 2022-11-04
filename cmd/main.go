@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/phntom/nixeepass/web"
+	"github.com/phntom/nixeepass/webui"
 	"log"
 )
 
 func main() {
-	log.Fatal(web.RunWebUI())
+	log.Fatal(webui.RunWebUI())
 }
