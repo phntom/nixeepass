@@ -1,2 +1,20 @@
 # nixeepass
-private self hosted keepass and keeweb storage on s3 server and management ui installed via helm3
+
+## Install
+
+```shell
+helm repo add phntom phntom.kix.co.il/charts
+wget https://raw.githubusercontent.com/phntom/nixeepass/main/charts/nixeepass/edit-me.yaml
+nano edit-me.yaml
+helm install nixeepass phntom/nixeepass -f edit-me.yaml
+```
+##
+
+
+## Build
+
+```shell
+nvm install 18.12
+cd static/ui
+npm run build
+```
