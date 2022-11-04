@@ -6,7 +6,7 @@ var iconMap = map[string]string{
 	"opera":           "fa-brands fa-opera",
 	"android":         "fa-brands fa-android",
 	"keepass2android": "fa-solid fa-mobile",
-	"mac":             "fa-brands fa-apple",
+	"macos":           "fa-brands fa-apple",
 	"ubuntu":          "fa-brands fa-ubuntu",
 	"windows":         "fa-brands fa-windows",
 	"canada":          "fa-brands fa-canadian-maple-leaf",

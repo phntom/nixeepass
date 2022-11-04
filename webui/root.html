@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="static/bulma.min.css"/>
     <link rel="stylesheet" href="static/fontawesome/css/all.min.css"/>
 </head>
-<body class="has-background-light">
+<body class="has-background-light hero is-fullheight">
 <div class="box">
-    <p class="title has-text-centered has-text-black"><i
-            class="fa-solid fa-unlock-keyhole"></i> nixeepass</p>
-    <div class="card {{ .ContentSection }}">
+    <p class="title has-text-centered has-text-black is-bold">
+        <i class="fa-solid fa-unlock-keyhole"></i> {{ .AppName }}</p>
+    <div class="card {{ if .NeedsLogin }}is-hidden{{ end }}">
         <div class="card-header has-background-success-dark">
             <p class="card-header-title has-text-success-light">
                 Welcome NameHere
@@ -37,8 +37,8 @@
                     <tbody>
                     {{ range .Devices }}
                     <tr>
-                        <td>Today</td>
-                        <td>Never</td>
+                        <td>{{ .Created | HumanizeTime }}</td>
+                        <td>{{ .Modified | HumanizeTime }}</td>
                         <td>
                             <span class="tag is-info">
                                 <span class="icon">
@@ -89,11 +89,38 @@
                 </span>
                 <span>Grant Access</span>
             </div>
+            <div>&nbsp;</div>
+            <div>&nbsp;</div>
+            <div>You can activate a backup copy here:</div>
+            <div>&nbsp;</div>
+            <div class="dropdown" onclick="this.classList.add('is-active')">
+                <div class="dropdown-trigger">
+                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                        <span>{{ .BackupActiveModified | HumanizeTime }}</span>
+                        <span class="icon is-small">
+                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                        </span>
+                    </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                    <div class="dropdown-content">
+                        {{ range .Backups }}
+                        <a href="#{{.BackupID}}" class="dropdown-item{{if .IsActive}} is-active{{end}}">{{ .Modified | HumanizeTime }}</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            <div class="button is-warning" onclick="this.classList.add('is-loading')">
+                <span class="icon">
+                    <i class="fa-solid fa-trash-can-arrow-up"></i>
+                </span>
+                <span>Activate Backup</span>
+            </div>
         </div>
     </div>
+    <div>&nbsp;</div>
 
-
-    <div class="modal {{ .LoginSection }}">
+    <div class="modal {{ if .NeedsLogin }}is-active{{ end }}">
         <div class="modal-background"></div>
         <div class="modal-content">
             <div class="message has-text-centered">
