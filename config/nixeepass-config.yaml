@@ -3,7 +3,7 @@ log:
   debug: true
   trace: true
 http:
-  listen: ":8979"
+  listen: "192.168.94.11:8979"
   liveliness_readiness_secret: ""
   headers:
     content-type: text/html; charset=UTF-8
@@ -24,8 +24,10 @@ dashboard:
     opera: fa-brands fa-opera
     android: fa-brands fa-android
     keepass2android: fa-solid fa-mobile
+    keeweb: fa-solid fa-key
     macos: fa-brands fa-apple
     ubuntu: fa-brands fa-ubuntu
+    linux: fa-brands fa-linux
     windows: fa-brands fa-windows
     canada: fa-brands fa-canadian-maple-leaf
     israel: fa-solid fa-star-of-david

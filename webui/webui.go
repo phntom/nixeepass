@@ -29,6 +29,7 @@ func RunWebUI() error {
 	}
 	fs := http.StripPrefix("/static/", gzipped.FileServer(gzipped.Dir("./static")))
 	http.Handle("/static/", fs)
+	http.HandleFunc("/webdav/", webdavHandler)
 	http.HandleFunc("/", rootHandler)
 	cfgHttp = &httpConfig{}
 	cfgDashboard = &dashboardConfig{}
@@ -84,7 +85,7 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	} else if request.URL.Path == cfgHttp.ReadinessEndpoint && request.Method == http.MethodGet {
 		err = readinessHandler(&buf, request)
 	} else {
-		enrich(log.Debug(), request).Msg("redirecting to dashboard")
+		enrich(log.Debug(), request).Msg("not found")
 		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -102,7 +103,7 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 	_, err = buf.WriteTo(writer)
 	if err != nil {
-		log.Info().Err(err).Msg("failed to transmit dashboard buffer")
+		enrich(log.Info().Err(err), request).Msg("failed to transmit dashboard buffer")
 	}
 }
 
