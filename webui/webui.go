@@ -13,6 +13,7 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var cfgHttp *httpConfig
@@ -39,30 +40,48 @@ func RunWebUI() error {
 }
 
 func loadTemplates() error {
-	dashboardTemplate = template.New("").Funcs(template.FuncMap{
+	funcMap := template.FuncMap{
 		"ToUpper":       strings.ToUpper,
 		"ToLower":       strings.ToLower,
 		"Title":         utils.GetTitleMap,
 		"FA":            GetIconMap,
 		"HumanizeTime":  utils.HumanTime,
 		"HumanizeBytes": humanize.Bytes,
-	})
+		"timeEQ":        time.Time.Equal,
+	}
+	dashboardTemplate = template.New("dashboard").Funcs(funcMap)
 	_, err := dashboardTemplate.Parse(dashboardContent)
+	if err != nil {
+		return err
+	}
+	grantTemplate = template.New("grant").Funcs(funcMap)
+	_, err = grantTemplate.Parse(grantContent)
 	return err
 }
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	var buf bytes.Buffer
 	var err error
-	if request.URL.Path == "/" {
+	if request.URL.Path == "/" && request.Method == http.MethodGet {
 		http.Redirect(writer, request, cfgHttp.DashboardEndpoint, http.StatusFound)
 		enrich(log.Debug(), request).Msg("redirecting to dashboard")
 		return
-	} else if request.URL.Path == cfgHttp.DashboardEndpoint {
+	} else if request.URL.Path == cfgHttp.DashboardEndpoint && request.Method == http.MethodGet {
 		err = dashboardHandler(&buf, request)
-	} else if request.URL.Path == "/_liveliness" {
+	} else if request.URL.Path == cfgHttp.GrantEndpoint && request.Method == http.MethodPost {
+		err = grantPerformer(writer, request)
+	} else if request.URL.Path == cfgHttp.GrantEndpoint && request.Method == http.MethodGet {
+		err = grantHandler(&buf, request)
+	} else if request.URL.Path == cfgHttp.RevokeEndpoint && request.Method == http.MethodPost {
+		err = revokePerformer(writer, request)
+	} else if request.URL.Path == cfgHttp.LoginEndpoint && request.Method == http.MethodPost {
+	} else if request.URL.Path == cfgHttp.LoginEndpoint && request.Method == http.MethodGet {
+		http.Redirect(writer, request, cfgHttp.DashboardEndpoint, http.StatusFound)
+		enrich(log.Info(), request).Msg("http get login attempt, redirecting to dashboard")
+		return
+	} else if request.URL.Path == cfgHttp.LivelinessEndpoint && request.Method == http.MethodGet {
 		err = livelinessHandler(&buf, request)
-	} else if request.URL.Path == "/_readiness" {
+	} else if request.URL.Path == cfgHttp.ReadinessEndpoint && request.Method == http.MethodGet {
 		err = readinessHandler(&buf, request)
 	} else {
 		enrich(log.Debug(), request).Msg("redirecting to dashboard")
@@ -71,7 +90,10 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 	if err != nil {
 		enrich(log.Error().Err(err), request).Msg("failed to render dashboard")
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		http.Error(writer, template.HTMLEscapeString(err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if buf.Len() == 0 {
 		return
 	}
 	writer.WriteHeader(http.StatusOK)

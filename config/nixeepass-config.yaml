@@ -4,7 +4,7 @@ log:
   trace: true
 http:
   listen: ":8979"
-  dashboard_endpoint: /dashboard
+  liveliness_readiness_secret: ""
   headers:
     content-type: text/html; charset=UTF-8
     x-content-type-options: "nosniff"

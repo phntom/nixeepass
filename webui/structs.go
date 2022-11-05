@@ -2,24 +2,12 @@ package webui
 
 import (
 	"github.com/phntom/nixeepass/orm"
+	"net/url"
 	"time"
 )
 
-type DeviceDetails struct {
-	Country  string
-	Browser  string
-	OS       string
-	Created  time.Time
-	Modified time.Time
-}
-
-type BackupDetails struct {
-	BackupID string
-	Modified time.Time
-	IsActive bool
-}
-
-type RootPage struct {
+type DashboardPage struct {
+	CSRF                 string
 	NeedsLogin           bool
 	AppName              string
 	BrandName            string
@@ -28,13 +16,34 @@ type RootPage struct {
 	Devices              []orm.Device
 	BackupActiveModified time.Time
 	Backups              []orm.Backup
+	HTTPConfig           *httpConfig
+}
+
+type GrantPage struct {
+	CSRF       string
+	HTTPConfig *httpConfig
+	AppName    string
+	BrandName  string
+	NeedsLogin bool
+	UserID     string
+	UserName   string
+	Device     *orm.Device
+	URL        *url.URL
 }
 
 type httpConfig struct {
-	BindAddress       string            `mapstructure:"listen"`
-	DashboardEndpoint string            `mapstructure:"dashboard_endpoint"`
-	Headers           map[string]string `mapstructure:"headers"`
-	Log               httpConfigLogs    `mapstructure:"log"`
+	BindAddress               string            `mapstructure:"listen"`
+	DashboardEndpoint         string            `mapstructure:"dashboard_endpoint"`
+	GrantEndpoint             string            `mapstructure:"grant_endpoint"`
+	RevokeEndpoint            string            `mapstructure:"revoke_endpoint"`
+	LoginEndpoint             string            `mapstructure:"login_endpoint"`
+	LivelinessEndpoint        string            `mapstructure:"liveliness_endpoint"`
+	ReadinessEndpoint         string            `mapstructure:"readiness_endpoint"`
+	WebDavEndpoint            string            `mapstructure:"webdav_endpoint"`
+	LivelinessReadinessSecret string            `mapstructure:"liveliness_readiness_secret"`
+	PublicPrefix              string            `mapstructure:"public_prefix"`
+	Headers                   map[string]string `mapstructure:"headers"`
+	Log                       httpConfigLogs    `mapstructure:"log"`
 }
 
 type httpConfigLogs struct {

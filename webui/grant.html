@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" charset="utf-8">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>{{ .AppName }}</title>
+    <link rel="stylesheet" href="static/bulma.min.css"/>
+    <link rel="stylesheet" href="static/fontawesome/css/all.min.css"/>
+</head>
+<body class="has-background-light hero is-fullheight">
+<div class="box">
+    <p class="title has-text-centered has-text-black is-bold">
+        <i class="fa-solid fa-unlock-keyhole"></i> {{ .AppName }}</p>
+    <div class="card {{ if .NeedsLogin }}is-hidden{{ end }}">
+        <div class="card-header has-background-success-dark">
+            <p class="card-header-title has-text-success-light">
+                Grant access for {{ .UserName }}
+            </p>
+        </div>
+        <div class="card-content">
+            <p>We've generated the following URL you can use in all
+                <a href="https://keepass.info/">keepass</a> compatible apps
+                including <a href="https://keeweb.info/">keeweb</a> and
+                <a href="https://play.google.com/store/apps/details?id=keepass2android.keepass2android">keepass2android</a>.
+            </p>
+            <p>&nbsp;</p>
+            <p>You may need to select webdav (https) or similar and provide the following URL:</p>
+            <p>&nbsp;</p>
+            <p class="tag is-family-code">{{ .HTTPConfig.PublicPrefix }}{{ .HTTPConfig.WebDavEndpoint }}/{{ .Device.Token }}/my.kdbx</p>
+            <p>&nbsp;</p>
+            <p>You can leave the username and password empty or enter any value, they will be ignored.</p>
+        </div>
+    </div>
+</div>
+<div class="modal {{ if .NeedsLogin }}is-active{{ end }}">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="message has-text-centered">
+            <div class="message-header has-background-danger-dark">Sign-in
+                required
+            </div>
+            <div class="message-body has-background-danger-light">
+                <div>In order to access this page you need to log in with
+                    your {{ .BrandName }} account.
+                </div>
+                <div>&nbsp;</div>
+                <form action="{{ .HTTPConfig.LoginEndpoint }}" method="post">
+                    <input type="hidden" name="csrf" value="{{ .CSRF }}">
+                    <input type="submit" id="submit-form-login" class="is-hidden">
+                </form>
+                <div class="button is-primary is-large" onclick="this.classList.add('is-loading'); document.getElementById('submit-form-login').click()">Login</div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

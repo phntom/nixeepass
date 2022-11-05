@@ -22,6 +22,27 @@ func reloadConfig(in fsnotify.Event) {
 	if cfgHttp.DashboardEndpoint == "" {
 		cfgHttp.DashboardEndpoint = "/dashboard"
 	}
+	if cfgHttp.GrantEndpoint == "" {
+		cfgHttp.GrantEndpoint = "/grant"
+	}
+	if cfgHttp.RevokeEndpoint == "" {
+		cfgHttp.RevokeEndpoint = "/revoke"
+	}
+	if cfgHttp.LoginEndpoint == "" {
+		cfgHttp.LoginEndpoint = "/login"
+	}
+	if cfgHttp.LivelinessEndpoint == "" {
+		cfgHttp.LivelinessEndpoint = "/_liveliness"
+	}
+	if cfgHttp.ReadinessEndpoint == "" {
+		cfgHttp.ReadinessEndpoint = "/_readiness"
+	}
+	if cfgHttp.WebDavEndpoint == "" {
+		cfgHttp.WebDavEndpoint = "/webdav"
+	}
+	if cfgHttp.PublicPrefix == "" {
+		cfgHttp.PublicPrefix = "https://example.com"
+	}
 	if cfgDashboard.AppName == "" {
 		cfgDashboard.AppName = "nixeepass"
 	}

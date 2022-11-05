@@ -1,7 +1,7 @@
 package webui
 
 import (
-	_ "embed"
+	_ "embed" // used for dashboard.html
 	"github.com/phntom/nixeepass/orm"
 	"html/template"
 	"io"
@@ -19,7 +19,7 @@ func dashboardHandler(writer io.Writer, request *http.Request) error {
 
 	var devices []orm.Device
 	db := orm.GetDB()
-	result := db.Find(&devices, orm.Device{UserID: userID, Active: true}, 100)
+	result := db.Find(&devices, orm.Device{UserID: userID}, 100)
 	err := result.Error
 	if err != nil {
 		return err
@@ -35,7 +35,7 @@ func dashboardHandler(writer io.Writer, request *http.Request) error {
 		backupActiveModified = backups[0].CreatedAt
 	}
 
-	data := RootPage{
+	data := DashboardPage{
 		NeedsLogin:           false,
 		AppName:              cfgDashboard.AppName,
 		BrandName:            cfgDashboard.BrandName,
@@ -44,6 +44,8 @@ func dashboardHandler(writer io.Writer, request *http.Request) error {
 		Devices:              devices,
 		BackupActiveModified: backupActiveModified,
 		Backups:              backups,
+		CSRF:                 "abc123",
+		HTTPConfig:           cfgHttp,
 	}
 	return dashboardTemplate.Execute(writer, data)
 }

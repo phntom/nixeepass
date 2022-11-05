@@ -6,6 +6,15 @@
     <title>{{ .AppName }}</title>
     <link rel="stylesheet" href="static/bulma.min.css"/>
     <link rel="stylesheet" href="static/fontawesome/css/all.min.css"/>
+    <script>
+        window.addEventListener( "pageshow", function ( event ) {
+            if ( event.persisted ||
+                (typeof window.performance != "undefined" &&
+                    window.performance.navigation.type === 2) ) {
+                window.location.reload();
+            }
+        });
+    </script>
 </head>
 <body class="has-background-light hero is-fullheight">
 <div class="box">
@@ -38,32 +47,45 @@
                     {{ range .Devices }}
                     <tr>
                         <td>{{ .CreatedAt | HumanizeTime }}</td>
-                        <td>{{ .UpdatedAt | HumanizeTime }}</td>
+                        <td>{{ if (timeEQ .CreatedAt .UpdatedAt) }}Never{{ else }}{{ .UpdatedAt | HumanizeTime }}{{ end }}</td>
                         <td>
+                            {{ if .UserAgentDevice }}
                             <span class="tag is-info">
                                 <span class="icon">
                                     <i class="{{.UserAgentDevice | FA}}"></i>
                                 </span>
-                                <span>{{.UserAgentDevice | Title}}</span>
+                                <span>{{ .UserAgentDevice | Title }}</span>
                             </span>
+                            {{ end }}
+                            {{ if .UserAgentOS }}
                             <span class="tag is-link">
                                 <span class="icon">
                                     <i class="{{.UserAgentOS | FA}}"></i>
                                 </span>
-                                <span>{{.UserAgentOS | Title}}</span>
+                                <span>{{ .UserAgentOS | Title }}</span>
                             </span>
+                            {{ end }}
                         </td>
                         <td>
-                            <span class="tag is-family-code">127.0.0.1</span>
+                            {{ if .LastIP }}
+                            <span class="tag is-family-code">{{ .LastIP }}</span>
+                            {{ end }}
+                            {{ if .LastCountry }}
                             <span class="tag is-dark">
                                 <span class="icon">
                                     <i class="{{.LastCountry | FA}}"></i>
                                 </span>
-                                <span>{{.LastCountry | ToLower | Title}}</span>
+                                <span>{{ .LastCountry | ToLower | Title }}</span>
                             </span>
+                            {{ end }}
                         </td>
                         <td>
-                            <div class="button is-danger is-small" onclick="this.classList.add('is-loading')">
+                            <form action="{{ $.HTTPConfig.RevokeEndpoint }}" method="post">
+                                <input type="hidden" name="csrf" value="{{ $.CSRF }}">
+                                <input type="hidden" name="id" value="{{ .ID }}">
+                                <input type="submit" id="submit-form-revoke-{{ .ID }}" class="is-hidden">
+                            </form>
+                            <div class="button is-danger is-small" onclick="this.classList.add('is-loading'); document.getElementById('submit-form-revoke-{{ .ID }}').click()">
                                 <span class="icon">
                                     <i class="fa-solid fa-ban"></i>
                                 </span>
@@ -86,8 +108,12 @@
             {{ end }}
             <div>&nbsp;</div>
             <div class="columns notification has-background-success-light">
-                <div class="column">To grant access to a new application, generate a new URL here:</div>
-                <div class="button is-success" onclick="this.classList.add('is-loading')">
+                <div class="column">To grant access to a new application, generate a new secret URL here:</div>
+                <form action="{{ .HTTPConfig.GrantEndpoint }}" method="post">
+                    <input type="hidden" name="csrf" value="{{ .CSRF }}">
+                    <input type="submit" id="submit-form-grant" class="is-hidden">
+                </form>
+                <div class="button is-success" onclick="this.classList.add('is-loading'); document.getElementById('submit-form-grant').click()">
                 <span class="icon">
                     <i class="fa-solid fa-circle-plus"></i>
                 </span>
@@ -147,7 +173,11 @@
                         your {{ .BrandName }} account.
                     </div>
                     <div>&nbsp;</div>
-                    <div class="button is-primary is-large" onclick="this.classList.add('is-loading')">Login</div>
+                    <form action="{{ .HTTPConfig.LoginEndpoint }}" method="post">
+                        <input type="hidden" name="csrf" value="{{ .CSRF }}">
+                        <input type="submit" id="submit-form-login" class="is-hidden">
+                    </form>
+                    <div class="button is-primary is-large" onclick="this.classList.add('is-loading'); document.getElementById('submit-form-login').click()">Login</div>
                 </div>
             </div>
         </div>

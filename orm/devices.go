@@ -6,8 +6,8 @@ import (
 
 type Device struct {
 	gorm.Model
-	Active          bool   `gorm:"index:active_user_id,priority:1"`
-	UserID          string `gorm:"index:active_user_id,priority:2"`
+	ID              uint   `gorm:"primarykey"`
+	UserID          string `gorm:"index:device_user_id"`
 	Token           string `gorm:"uniqueIndex:token"`
 	UserAgentOS     string `json:"user_agent_os"`
 	UserAgentDevice string `json:"user_agent_device"`
