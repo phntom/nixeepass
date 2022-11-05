@@ -12,12 +12,13 @@
     <p class="title has-text-centered has-text-black is-bold">
         <i class="fa-solid fa-unlock-keyhole"></i> {{ .AppName }}</p>
     <div class="card {{ if .NeedsLogin }}is-hidden{{ end }}">
-        <div class="card-header has-background-success-dark">
+        <div class="card-header has-background-info-dark">
             <p class="card-header-title has-text-success-light">
                 Welcome {{ .UserName }}
             </p>
         </div>
-        <div class="card-content has-background-success-light">
+        <div class="card-content">
+            {{ if .Devices }}
             <div>Here is a list of devices with access to your password
                 database:
             </div>
@@ -36,29 +37,29 @@
                     <tbody>
                     {{ range .Devices }}
                     <tr>
-                        <td>{{ .Created | HumanizeTime }}</td>
-                        <td>{{ .Modified | HumanizeTime }}</td>
+                        <td>{{ .CreatedAt | HumanizeTime }}</td>
+                        <td>{{ .UpdatedAt | HumanizeTime }}</td>
                         <td>
                             <span class="tag is-info">
                                 <span class="icon">
-                                    <i class="{{.Browser | FA}}"></i>
+                                    <i class="{{.UserAgentDevice | FA}}"></i>
                                 </span>
-                                <span>{{.Browser | Title}}</span>
+                                <span>{{.UserAgentDevice | Title}}</span>
                             </span>
                             <span class="tag is-link">
                                 <span class="icon">
-                                    <i class="{{.OS | FA}}"></i>
+                                    <i class="{{.UserAgentOS | FA}}"></i>
                                 </span>
-                                <span>{{.OS | Title}}</span>
+                                <span>{{.UserAgentOS | Title}}</span>
                             </span>
                         </td>
                         <td>
                             <span class="tag is-family-code">127.0.0.1</span>
                             <span class="tag is-dark">
                                 <span class="icon">
-                                    <i class="{{.Country | FA}}"></i>
+                                    <i class="{{.LastCountry | FA}}"></i>
                                 </span>
-                                <span>{{.Country | ToLower | Title}}</span>
+                                <span>{{.LastCountry | ToLower | Title}}</span>
                             </span>
                         </td>
                         <td>
@@ -77,43 +78,58 @@
                 </table>
             </div>
             <div>&nbsp;</div>
-            <div>&nbsp;</div>
-            <div>To grant access to a new application, generate a new URL
-                here:
+            {{ else }}
+            <div class="notification is-info" id="notification-no-devices">
+                <button class="delete" onclick="document.getElementById('notification-no-devices').classList.add('is-hidden')"></button>
+                You don't have any devices registered with your database.
             </div>
+            {{ end }}
             <div>&nbsp;</div>
-            <div class="button is-success" onclick="this.classList.add('is-loading')">
+            <div class="columns notification has-background-success-light">
+                <div class="column">To grant access to a new application, generate a new URL here:</div>
+                <div class="button is-success" onclick="this.classList.add('is-loading')">
                 <span class="icon">
                     <i class="fa-solid fa-circle-plus"></i>
                 </span>
-                <span>Grant Access</span>
-            </div>
-            <div>&nbsp;</div>
-            <div>&nbsp;</div>
-            <div>You can activate a backup copy here:</div>
-            <div>&nbsp;</div>
-            <div class="dropdown" onclick="this.classList.add('is-active')">
-                <div class="dropdown-trigger">
-                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-                        <span>{{ .BackupActiveModified | HumanizeTime }}</span>
-                        <span class="icon is-small">
-                            <i class="fas fa-angle-down" aria-hidden="true"></i>
-                        </span>
-                    </button>
+                    <span>Grant Access</span>
                 </div>
-                <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                    <div class="dropdown-content">
-                        {{ range .Backups }}
-                        <a href="#{{.BackupID}}" class="dropdown-item{{if .IsActive}} is-active{{end}}">{{ .Modified | HumanizeTime }}</a>
-                        {{ end }}
+            </div>
+
+            <div>&nbsp;</div>
+            {{ if .Backups }}{{ else }}
+            <div class="notification is-warning" id="notification-no-backups">
+                <button class="delete" onclick="document.getElementById('notification-no-backups').classList.add('is-hidden')"></button>
+                You don't have backups at this time. They are created automatically.
+            </div>
+            {{ end }}
+            <div>&nbsp;</div>
+            <div class="columns has-background-warning-light{{ if .Backups }}{{ else }} is-hidden{{ end }}">
+                <div class="column">You can activate a backup copy by choosing the date: </div>
+                <div class="column">
+                    <div class="dropdown" onclick="this.classList.add('is-active')">
+                        <div class="dropdown-trigger">
+                            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                                <span>{{ .BackupActiveModified | HumanizeTime }}</span>
+                                <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                            <div class="dropdown-content">
+                                {{ range .Backups }}
+                                <a href="#backup_{{.ID}}" class="dropdown-item{{if .IsActive}} is-active{{end}}">{{ .CreatedAt | HumanizeTime }}</a>
+                                {{ end }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button is-warning" onclick="this.classList.add('is-loading')">
+                    <span class="icon">
+                        <i class="fa-solid fa-trash-can-arrow-up"></i>
+                    </span>
+                        <span>Activate Backup</span>
                     </div>
                 </div>
-            </div>
-            <div class="button is-warning" onclick="this.classList.add('is-loading')">
-                <span class="icon">
-                    <i class="fa-solid fa-trash-can-arrow-up"></i>
-                </span>
-                <span>Activate Backup</span>
             </div>
         </div>
     </div>

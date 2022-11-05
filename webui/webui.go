@@ -2,26 +2,26 @@ package webui
 
 import (
 	"bytes"
-	_ "embed"
 	"github.com/dustin/go-humanize"
 	"github.com/fsnotify/fsnotify"
 	"github.com/lpar/gzipped/v2"
 	"github.com/phntom/nixeepass/config"
+	"github.com/phntom/nixeepass/orm"
 	"github.com/phntom/nixeepass/utils"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
 	"strings"
 )
 
-//go:embed root.html
-var rootContent string
-var rootTemplate *template.Template
-
 var cfgHttp *httpConfig
 var cfgDashboard *dashboardConfig
 
 func RunWebUI() error {
+
+	orm.StartORM()
+
 	err := loadTemplates()
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func RunWebUI() error {
 }
 
 func loadTemplates() error {
-	rootTemplate = template.New("").Funcs(template.FuncMap{
+	dashboardTemplate = template.New("").Funcs(template.FuncMap{
 		"ToUpper":       strings.ToUpper,
 		"ToLower":       strings.ToLower,
 		"Title":         utils.GetTitleMap,
@@ -47,24 +47,30 @@ func loadTemplates() error {
 		"HumanizeTime":  utils.HumanTime,
 		"HumanizeBytes": humanize.Bytes,
 	})
-	_, err := rootTemplate.Parse(rootContent)
+	_, err := dashboardTemplate.Parse(dashboardContent)
 	return err
 }
 
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	var buf bytes.Buffer
 	var err error
-	if request.URL.Path == cfgHttp.DashboardEndpoint {
-		err = dashboardHandler(&buf, request)
-	} else if request.URL.Path == "/" {
+	if request.URL.Path == "/" {
 		http.Redirect(writer, request, cfgHttp.DashboardEndpoint, http.StatusFound)
+		enrich(log.Debug(), request).Msg("redirecting to dashboard")
 		return
+	} else if request.URL.Path == cfgHttp.DashboardEndpoint {
+		err = dashboardHandler(&buf, request)
+	} else if request.URL.Path == "/_liveliness" {
+		err = livelinessHandler(&buf, request)
+	} else if request.URL.Path == "/_readiness" {
+		err = readinessHandler(&buf, request)
 	} else {
+		enrich(log.Debug(), request).Msg("redirecting to dashboard")
 		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		log.Info().Err(err).Msg("failed to render dashboard")
+		enrich(log.Error().Err(err), request).Msg("failed to render dashboard")
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -76,4 +82,23 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		log.Info().Err(err).Msg("failed to transmit dashboard buffer")
 	}
+}
+
+func enrich(l *zerolog.Event, request *http.Request) *zerolog.Event {
+	if cfgHttp.Log.Method && len(request.Method) > 0 {
+		l = l.Str("method", request.Method)
+	}
+	if cfgHttp.Log.RemoteAddr && len(request.RemoteAddr) > 0 {
+		l = l.Str("remote_addr", request.RemoteAddr)
+	}
+	for _, header := range cfgHttp.Log.Headers {
+		h := request.Header.Get(header)
+		if len(h) > 0 {
+			l = l.Str(header, h)
+		}
+	}
+	if len(request.URL.Host) > 0 {
+		l = l.Str("host", request.URL.Host)
+	}
+	return l.Str("path", request.URL.Path)
 }

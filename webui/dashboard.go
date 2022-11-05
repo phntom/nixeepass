@@ -1,69 +1,51 @@
 package webui
 
 import (
+	_ "embed"
+	"github.com/phntom/nixeepass/orm"
+	"html/template"
 	"io"
 	"net/http"
 	"time"
 )
 
+//go:embed dashboard.html
+var dashboardContent string
+var dashboardTemplate *template.Template
+
 func dashboardHandler(writer io.Writer, request *http.Request) error {
-	never := time.Unix(0, 0)
-	now := time.Now().Add(-10 * time.Minute)
-	yesterday := time.Now().Add(-24 * time.Hour)
-	lastMonth := time.Now().Add(-24 * 40 * time.Hour)
-	lastYear := time.Now().Add(-24 * 365 * time.Hour)
+	userID := "abc123"
+	userName := "phantom@kix.co.il"
+
+	var devices []orm.Device
+	db := orm.GetDB()
+	result := db.Find(&devices, orm.Device{UserID: userID, Active: true}, 100)
+	err := result.Error
+	if err != nil {
+		return err
+	}
+	var backups []orm.Backup
+	result = db.Find(&backups, orm.Backup{UserID: userID}, 20)
+	err = result.Error
+	if err != nil {
+		return err
+	}
+	backupActiveModified := time.Unix(0, 0)
+	if len(backups) > 0 {
+		backupActiveModified = backups[0].CreatedAt
+	}
 
 	data := RootPage{
-		NeedsLogin: false,
-		AppName:    cfgDashboard.AppName,
-		BrandName:  cfgDashboard.BrandName,
-		UserID:     "abc123",
-		UserName:   "NameHere",
-		Devices: []DeviceDetails{
-			{
-				Created:  now,
-				Modified: never,
-				Browser:  "chrome",
-				Country:  "united states",
-				OS:       "windows",
-			},
-			{
-				Created:  yesterday,
-				Modified: now,
-				Browser:  "firefox",
-				Country:  "canada",
-				OS:       "ubuntu",
-			},
-			{
-				Created:  lastYear,
-				Modified: lastMonth,
-				Browser:  "keepass2android",
-				Country:  "unknown",
-				OS:       "android",
-			},
-			{
-				Created:  lastMonth,
-				Modified: now,
-				Browser:  "opera",
-				Country:  "israel",
-				OS:       "macos",
-			},
-		},
-		BackupActiveModified: now,
-		Backups: []BackupDetails{
-			{
-				BackupID: "123",
-				Modified: now,
-				IsActive: true,
-			},
-			{
-				BackupID: "456",
-				Modified: yesterday,
-				IsActive: false,
-			},
-		},
+		NeedsLogin:           false,
+		AppName:              cfgDashboard.AppName,
+		BrandName:            cfgDashboard.BrandName,
+		UserID:               userID,
+		UserName:             userName,
+		Devices:              devices,
+		BackupActiveModified: backupActiveModified,
+		Backups:              backups,
 	}
-	return rootTemplate.Execute(writer, data)
+	return dashboardTemplate.Execute(writer, data)
 }
 
 func GetIconMap(key string) string {

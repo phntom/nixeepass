@@ -1,6 +1,7 @@
 log:
   json: false
   debug: true
+  trace: true
 http:
   listen: ":8979"
   dashboard_endpoint: /dashboard
@@ -9,6 +10,11 @@ http:
     x-content-type-options: "nosniff"
     x-frame-options: SAMEORIGIN
     # strict-transport-security: max-age=31536000; includeSubDomains
+  log:
+    method: true
+    remote_addr: true
+    headers:
+      - X-Request-ID
 dashboard:
   app_name: nixeepass
   brand_name: kix.co.il
@@ -57,3 +63,8 @@ dashboard:
     space: fa-solid fa-satellite
     air: fa-solid fa-plane-up
     ocean: fa-solid fa-sailboat
+db:
+  type: sqlite3
+  sqlite3:
+    filename: test1.db
+    prepared_statement: true

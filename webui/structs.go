@@ -1,6 +1,9 @@
 package webui
 
-import "time"
+import (
+	"github.com/phntom/nixeepass/orm"
+	"time"
+)
 
 type DeviceDetails struct {
 	Country  string
@@ -22,15 +25,22 @@ type RootPage struct {
 	BrandName            string
 	UserID               string
 	UserName             string
-	Devices              []DeviceDetails
+	Devices              []orm.Device
 	BackupActiveModified time.Time
-	Backups              []BackupDetails
+	Backups              []orm.Backup
 }
 
 type httpConfig struct {
 	BindAddress       string            `mapstructure:"listen"`
 	DashboardEndpoint string            `mapstructure:"dashboard_endpoint"`
 	Headers           map[string]string `mapstructure:"headers"`
+	Log               httpConfigLogs    `mapstructure:"log"`
+}
+
+type httpConfigLogs struct {
+	Method     bool     `mapstructure:"method"`
+	RemoteAddr bool     `mapstructure:"remote_addr"`
+	Headers    []string `mapstructure:"headers"`
 }
 
 type dashboardConfig struct {

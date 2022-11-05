@@ -17,8 +17,9 @@ func main() {
 
 func StartLogging() {
 	cfg := config.Config()
-	logJson := cfg.GetBool("log.json")
+	logJSON := cfg.GetBool("log.json")
 	logDebug := cfg.GetBool("log.debug")
+	logTrace := cfg.GetBool("log.trace")
 
 	level := zerolog.InfoLevel
 	jwwLevel := jww.LevelInfo
@@ -26,17 +27,21 @@ func StartLogging() {
 		level = zerolog.DebugLevel
 		jwwLevel = jww.LevelDebug
 	}
+	if logTrace {
+		level = zerolog.TraceLevel
+		jwwLevel = jww.LevelTrace
+	}
 
 	zerolog.SetGlobalLevel(level)
 
-	if !logJson {
+	if !logJSON {
 		consoleWriter := zerolog.ConsoleWriter{Out: os.Stderr}
-		jww.SetLogOutput(consoleWriter)
+		jww.SetStdoutOutput(consoleWriter)
 		jww.SetStdoutThreshold(jwwLevel)
-		jww.SetLogThreshold(jwwLevel)
 		jww.SetPrefix("viper")
 		log.Logger = log.Output(consoleWriter)
 	}
+	zerolog.DefaultContextLogger = &log.Logger
 
 	log.WithLevel(level).Msg(fmt.Sprintf("Starting %s", config.AppName))
 }
