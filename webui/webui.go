@@ -23,7 +23,12 @@ func RunWebUI() error {
 
 	orm.StartORM()
 
-	err := loadTemplates()
+	err := loadIP2Location()
+	if err != nil {
+		return err
+	}
+
+	err = loadTemplates()
 	if err != nil {
 		return err
 	}
