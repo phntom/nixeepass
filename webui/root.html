@@ -2,9 +2,8 @@
 <html lang="en" charset="utf-8">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>nixeepass</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>{{ .AppName }}</title>
     <link rel="stylesheet" href="static/bulma.min.css"/>
     <link rel="stylesheet" href="static/fontawesome/css/all.min.css"/>
 </head>
@@ -15,7 +14,7 @@
     <div class="card {{ if .NeedsLogin }}is-hidden{{ end }}">
         <div class="card-header has-background-success-dark">
             <p class="card-header-title has-text-success-light">
-                Welcome NameHere
+                Welcome {{ .UserName }}
             </p>
         </div>
         <div class="card-content has-background-success-light">

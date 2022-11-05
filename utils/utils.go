@@ -1,4 +1,4 @@
-package webui
+package utils
 
 import (
 	"github.com/dustin/go-humanize"
