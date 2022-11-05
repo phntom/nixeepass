@@ -2,6 +2,7 @@
   <configuration default="false" name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="nixeepass" />
     <working_directory value="$PROJECT_DIR$" />
+    <useCustomBuildTags value="true" />
     <kind value="FILE" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/cmd/main.go" />

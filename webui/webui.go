@@ -1,10 +1,15 @@
 package webui
 
 import (
+	"bytes"
 	_ "embed"
 	"github.com/dustin/go-humanize"
+	"github.com/fsnotify/fsnotify"
 	"github.com/lpar/gzipped/v2"
+	"github.com/phntom/nixeepass/config"
+	"github.com/rs/zerolog/log"
 	"html/template"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -14,6 +19,13 @@ import (
 var rootContent string
 var rootTemplate *template.Template
 
+type httpConfig struct {
+	BindAddress       string `mapstructure:"listen"`
+	DashboardEndpoint string `mapstructure:"dashboard_endpoint"`
+}
+
+var cfg *httpConfig
+
 func RunWebUI() error {
 	err := loadTemplates()
 	if err != nil {
@@ -22,7 +34,12 @@ func RunWebUI() error {
 	fs := http.StripPrefix("/static/", gzipped.FileServer(gzipped.Dir("./static")))
 	http.Handle("/static/", fs)
 	http.HandleFunc("/", rootHandler)
-	return http.ListenAndServe(":8999", nil)
+	cfg = &httpConfig{}
+	ReloadConfig(fsnotify.Event{})
+	config.RegisterOnConfigChange(ReloadConfig)
+
+	log.Info().Str("BindAddress", cfg.BindAddress).Msg("Starting web server")
+	return http.ListenAndServe(cfg.BindAddress, nil)
 }
 
 func loadTemplates() error {
@@ -38,13 +55,47 @@ func loadTemplates() error {
 	return err
 }
 
+func ReloadConfig(in fsnotify.Event) {
+	log.Debug().Msg("Reloading http config")
+	err := config.Config().UnmarshalKey("http", cfg)
+	if err != nil {
+		log.Info().Err(err).Msg("failed to reload http config")
+	}
+	if cfg.BindAddress == "" {
+		cfg.BindAddress = ":8979"
+	}
+	if cfg.DashboardEndpoint == "" {
+		cfg.DashboardEndpoint = "/dashboard"
+	}
+}
+
 func rootHandler(writer http.ResponseWriter, request *http.Request) {
-	if request.URL.Path != "/" {
+	var buf bytes.Buffer
+	var err error
+	if request.URL.Path == cfg.DashboardEndpoint {
+		err = dashboardHandler(&buf, request)
+	} else if request.URL.Path == "/" {
+		http.Redirect(writer, request, cfg.DashboardEndpoint, http.StatusFound)
+		return
+	} else {
 		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
-	writer.WriteHeader(http.StatusOK)
+	if err != nil {
+		log.Info().Err(err).Msg("failed to render dashboard")
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	writer.WriteHeader(http.StatusOK)
+	writer.Header().Set("Content-Type", "text/html; charset=UTF-8")
+	_, err = buf.WriteTo(writer)
+	if err != nil {
+		log.Info().Err(err).Msg("failed to transmit dashboard buffer")
+	}
+}
+
+func dashboardHandler(writer io.Writer, request *http.Request) error {
 	never := time.Unix(0, 0)
 	now := time.Now().Add(-10 * time.Minute)
 	yesterday := time.Now().Add(-24 * time.Hour)
@@ -100,5 +151,5 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 			},
 		},
 	}
-	_ = rootTemplate.Execute(writer, data)
+	return rootTemplate.Execute(writer, data)
 }

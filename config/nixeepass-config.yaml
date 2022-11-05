@@ -1,0 +1,6 @@
+log:
+  json: false
+  debug: true
+http:
+  listen: ":8979"
+  dashboard_endpoint: "/dashboard"
