@@ -122,6 +122,13 @@
             </div>
 
             <div>&nbsp;</div>
+
+            <div class="notification is-ghost" id="notification-cookies">
+                <button class="delete" onclick="document.getElementById('notification-cookies').classList.add('is-hidden')"></button>
+                <i class="fa-solid fa-cookie"></i> We are using cookies to protect your browser from attacks.
+                <i class="fa-solid fa-cookie-bite"></i> We don't track you or share with 3rd parties.
+            </div>
+
             {{ if .Backups }}{{ else }}
             <div class="notification is-warning" id="notification-no-backups">
                 <button class="delete" onclick="document.getElementById('notification-no-backups').classList.add('is-hidden')"></button>
@@ -183,5 +190,7 @@
         </div>
     </div>
 </div>
+<div class="tag is-ghost has-text-grey">This site or product includes IP2Location LITE data available from &nbsp;
+    <a href="https://lite.ip2location.com">https://lite.ip2location.com</a>.</div>
 </body>
 </html>
