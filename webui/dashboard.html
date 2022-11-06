@@ -80,7 +80,7 @@
                             {{ end }}
                         </td>
                         <td>
-                            <form action="{{ $.HTTPConfig.RevokeEndpoint }}" method="post">
+                            <form action="{{ $.HTTPConfig.Endpoints.Revoke }}" method="post">
                                 <input type="hidden" name="csrf" value="{{ $.CSRF }}">
                                 <input type="hidden" name="id" value="{{ .ID }}">
                                 <input type="submit" id="submit-form-revoke-{{ .ID }}" class="is-hidden">
@@ -109,7 +109,7 @@
             <div>&nbsp;</div>
             <div class="columns notification has-background-success-light">
                 <div class="column">To grant access to a new application, generate a new secret URL here:</div>
-                <form action="{{ .HTTPConfig.GrantEndpoint }}" method="post">
+                <form action="{{ .HTTPConfig.Endpoints.Grant }}" method="post">
                     <input type="hidden" name="csrf" value="{{ .CSRF }}">
                     <input type="submit" id="submit-form-grant" class="is-hidden">
                 </form>
@@ -180,7 +180,7 @@
                         your {{ .BrandName }} account.
                     </div>
                     <div>&nbsp;</div>
-                    <form action="{{ .HTTPConfig.LoginEndpoint }}" method="post">
+                    <form action="{{ .HTTPConfig.Endpoints.Login }}" method="post">
                         <input type="hidden" name="csrf" value="{{ .CSRF }}">
                         <input type="submit" id="submit-form-login" class="is-hidden">
                     </form>

@@ -81,3 +81,6 @@ db:
   sqlite3:
     filename: test1.db
     prepared_statement: true
+cloud:
+  protocol: s3
+  bucket: nixee

@@ -26,7 +26,7 @@
             <p>&nbsp;</p>
             <p>You may need to select webdav (https) or similar and provide the following URL:</p>
             <p>&nbsp;</p>
-            <p class="tag is-family-code">{{ .HTTPConfig.PublicPrefix }}{{ .HTTPConfig.WebDavEndpoint }}/{{ .Device.Token }}/my.kdbx</p>
+            <p class="tag is-family-code">{{ .HTTPConfig.Endpoints.PublicPrefix }}{{ .HTTPConfig.Endpoints.Webdav }}/{{ .Device.Token }}/my.kdbx</p>
             <p>&nbsp;</p>
             <p>You can leave the username and password empty or enter any value, they will be ignored.</p>
         </div>
@@ -44,7 +44,7 @@
                     your {{ .BrandName }} account.
                 </div>
                 <div>&nbsp;</div>
-                <form action="{{ .HTTPConfig.LoginEndpoint }}" method="post">
+                <form action="{{ .HTTPConfig.Endpoints.Login }}" method="post">
                     <input type="hidden" name="csrf" value="{{ .CSRF }}">
                     <input type="submit" id="submit-form-login" class="is-hidden">
                 </form>
