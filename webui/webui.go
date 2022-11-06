@@ -69,25 +69,25 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	var buf bytes.Buffer
 	var err error
 	if request.URL.Path == "/" && request.Method == http.MethodGet {
-		http.Redirect(writer, request, cfgHttp.DashboardEndpoint, http.StatusFound)
+		http.Redirect(writer, request, cfgHttp.Endpoints.Dashboard, http.StatusFound)
 		enrich(log.Debug(), request).Msg("redirecting to dashboard")
 		return
-	} else if request.URL.Path == cfgHttp.DashboardEndpoint && request.Method == http.MethodGet {
+	} else if request.URL.Path == cfgHttp.Endpoints.Dashboard && request.Method == http.MethodGet {
 		err = dashboardHandler(&buf, request)
-	} else if request.URL.Path == cfgHttp.GrantEndpoint && request.Method == http.MethodPost {
+	} else if request.URL.Path == cfgHttp.Endpoints.Grant && request.Method == http.MethodPost {
 		err = grantPerformer(writer, request)
-	} else if request.URL.Path == cfgHttp.GrantEndpoint && request.Method == http.MethodGet {
+	} else if request.URL.Path == cfgHttp.Endpoints.Grant && request.Method == http.MethodGet {
 		err = grantHandler(&buf, request)
-	} else if request.URL.Path == cfgHttp.RevokeEndpoint && request.Method == http.MethodPost {
+	} else if request.URL.Path == cfgHttp.Endpoints.Revoke && request.Method == http.MethodPost {
 		err = revokePerformer(writer, request)
-	} else if request.URL.Path == cfgHttp.LoginEndpoint && request.Method == http.MethodPost {
-	} else if request.URL.Path == cfgHttp.LoginEndpoint && request.Method == http.MethodGet {
-		http.Redirect(writer, request, cfgHttp.DashboardEndpoint, http.StatusFound)
+	} else if request.URL.Path == cfgHttp.Endpoints.Login && request.Method == http.MethodPost {
+	} else if request.URL.Path == cfgHttp.Endpoints.Login && request.Method == http.MethodGet {
+		http.Redirect(writer, request, cfgHttp.Endpoints.Dashboard, http.StatusFound)
 		enrich(log.Info(), request).Msg("http get login attempt, redirecting to dashboard")
 		return
-	} else if request.URL.Path == cfgHttp.LivelinessEndpoint && request.Method == http.MethodGet {
+	} else if request.URL.Path == cfgHttp.Endpoints.Liveliness && request.Method == http.MethodGet {
 		err = livelinessHandler(&buf, request)
-	} else if request.URL.Path == cfgHttp.ReadinessEndpoint && request.Method == http.MethodGet {
+	} else if request.URL.Path == cfgHttp.Endpoints.Readiness && request.Method == http.MethodGet {
 		err = readinessHandler(&buf, request)
 	} else {
 		enrich(log.Debug(), request).Msg("not found")

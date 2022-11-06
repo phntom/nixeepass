@@ -5,9 +5,20 @@ log:
 http:
   listen: "192.168.94.11:8979"
   liveliness_readiness_secret: ""
+  auth:
+    mock_user_id: abc123
+  endpoints:
+    dashboard: /dashboard
+    grant: /grant
+    revoke: /revoke
+    login: /login
+    liveliness: /_healtz
+    readiness: /_ready
+    webdav: /webdav
+    public_prefix: http://192.168.94.11:8979
   headers:
     content-type: text/html; charset=UTF-8
-    x-content-type-options: "nosniff"
+    x-content-type-options: nosniff
     x-frame-options: SAMEORIGIN
     # strict-transport-security: max-age=31536000; includeSubDomains
   log:

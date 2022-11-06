@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func reloadConfig(in fsnotify.Event) {
+func reloadConfig(_ fsnotify.Event) {
 	log.Debug().Msg("Reloading http, dashboard configs")
 	err := config.Config().UnmarshalKey("http", cfgHttp)
 	if err != nil {
@@ -19,29 +19,29 @@ func reloadConfig(in fsnotify.Event) {
 	if cfgHttp.BindAddress == "" {
 		cfgHttp.BindAddress = ":8979"
 	}
-	if cfgHttp.DashboardEndpoint == "" {
-		cfgHttp.DashboardEndpoint = "/dashboard"
+	if cfgHttp.Endpoints.Dashboard == "" {
+		cfgHttp.Endpoints.Dashboard = "/dashboard"
 	}
-	if cfgHttp.GrantEndpoint == "" {
-		cfgHttp.GrantEndpoint = "/grant"
+	if cfgHttp.Endpoints.Grant == "" {
+		cfgHttp.Endpoints.Grant = "/grant"
 	}
-	if cfgHttp.RevokeEndpoint == "" {
-		cfgHttp.RevokeEndpoint = "/revoke"
+	if cfgHttp.Endpoints.Revoke == "" {
+		cfgHttp.Endpoints.Revoke = "/revoke"
 	}
-	if cfgHttp.LoginEndpoint == "" {
-		cfgHttp.LoginEndpoint = "/login"
+	if cfgHttp.Endpoints.Login == "" {
+		cfgHttp.Endpoints.Login = "/login"
 	}
-	if cfgHttp.LivelinessEndpoint == "" {
-		cfgHttp.LivelinessEndpoint = "/_liveliness"
+	if cfgHttp.Endpoints.Liveliness == "" {
+		cfgHttp.Endpoints.Liveliness = "/_liveliness"
 	}
-	if cfgHttp.ReadinessEndpoint == "" {
-		cfgHttp.ReadinessEndpoint = "/_readiness"
+	if cfgHttp.Endpoints.Readiness == "" {
+		cfgHttp.Endpoints.Readiness = "/_readiness"
 	}
-	if cfgHttp.WebDavEndpoint == "" {
-		cfgHttp.WebDavEndpoint = "/webdav"
+	if cfgHttp.Endpoints.Webdav == "" {
+		cfgHttp.Endpoints.Webdav = "/webdav"
 	}
-	if cfgHttp.PublicPrefix == "" {
-		cfgHttp.PublicPrefix = "https://example.com"
+	if cfgHttp.Endpoints.PublicPrefix == "" {
+		cfgHttp.Endpoints.PublicPrefix = "https://example.com"
 	}
 	if cfgDashboard.AppName == "" {
 		cfgDashboard.AppName = "nixeepass"

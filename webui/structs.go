@@ -32,28 +32,37 @@ type GrantPage struct {
 }
 
 type httpConfig struct {
-	BindAddress               string            `mapstructure:"listen"`
-	DashboardEndpoint         string            `mapstructure:"dashboard_endpoint"`
-	GrantEndpoint             string            `mapstructure:"grant_endpoint"`
-	RevokeEndpoint            string            `mapstructure:"revoke_endpoint"`
-	LoginEndpoint             string            `mapstructure:"login_endpoint"`
-	LivelinessEndpoint        string            `mapstructure:"liveliness_endpoint"`
-	ReadinessEndpoint         string            `mapstructure:"readiness_endpoint"`
-	WebDavEndpoint            string            `mapstructure:"webdav_endpoint"`
-	LivelinessReadinessSecret string            `mapstructure:"liveliness_readiness_secret"`
-	PublicPrefix              string            `mapstructure:"public_prefix"`
-	Headers                   map[string]string `mapstructure:"headers"`
-	Log                       httpConfigLogs    `mapstructure:"log"`
+	BindAddress string `mapstructure:"listen"`
+	Endpoints   httpConfigEndpoints
+	Headers     map[string]string
+	Log         httpConfigLogs
+	Auth        httpConfigAuth
+}
+
+type httpConfigEndpoints struct {
+	Dashboard                 string
+	Grant                     string
+	Revoke                    string
+	Login                     string
+	Liveliness                string
+	Readiness                 string
+	Webdav                    string
+	LivelinessReadinessSecret string
+	PublicPrefix              string
 }
 
 type httpConfigLogs struct {
-	Method     bool     `mapstructure:"method"`
-	RemoteAddr bool     `mapstructure:"remote_addr"`
-	Headers    []string `mapstructure:"headers"`
+	Method     bool
+	RemoteAddr bool
+	Headers    []string
+}
+
+type httpConfigAuth struct {
+	MockUserID string `mapstructure:"mock_user_id"`
 }
 
 type dashboardConfig struct {
-	AppName   string            `mapstructure:"app_name"`
-	BrandName string            `mapstructure:"brand_name"`
-	IconMap   map[string]string `mapstructure:"icons"`
+	AppName   string
+	BrandName string
+	IconMap   map[string]string
 }

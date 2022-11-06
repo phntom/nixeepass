@@ -14,7 +14,7 @@ func revokePerformer(writer http.ResponseWriter, request *http.Request) error {
 	}
 
 	url := request.URL
-	url.Path = cfgHttp.DashboardEndpoint
+	url.Path = cfgHttp.Endpoints.Dashboard
 	http.Redirect(writer, request, url.String(), http.StatusFound)
 
 	var device orm.Device

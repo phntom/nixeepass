@@ -8,7 +8,7 @@ import (
 )
 
 func ensureSecret(request *http.Request) error {
-	if request.Header.Get("X-Secret") != cfgHttp.LivelinessReadinessSecret {
+	if request.Header.Get("X-Secret") != cfgHttp.Endpoints.LivelinessReadinessSecret {
 		return errors.New("invalid X-Secret header")
 	}
 	return nil
