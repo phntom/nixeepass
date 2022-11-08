@@ -3,7 +3,7 @@ log:
   debug: true
   trace: true
 http:
-  listen: "192.168.94.11:8979"
+  listen: ":8979"
   liveliness_readiness_secret: ""
   auth:
     mock_user_id: abc123
@@ -83,4 +83,10 @@ db:
     prepared_statement: true
 cloud:
   protocol: s3
-  bucket: nixee
+  bucket: nixeepass-prod
+  prefix: /test
+  test: helloworld.txt
+  s3:
+    endpoint: https://example.com
+    key: x
+    secret: y

@@ -64,5 +64,5 @@ type httpConfigAuth struct {
 type dashboardConfig struct {
 	AppName   string
 	BrandName string
-	IconMap   map[string]string
+	IconMap   map[string]string `mapstructure:"icons"`
 }

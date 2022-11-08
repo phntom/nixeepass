@@ -1,14 +1,17 @@
 package storage
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/rs/zerolog/log"
 	"io"
+	"strings"
+	"time"
 )
 
 type S3CloudStorage struct {
@@ -18,7 +21,7 @@ type S3CloudStorage struct {
 	prefix  string
 }
 
-func (cloud S3CloudStorage) Setup(bucket string, prefix string, client string, secret string, endpointURL string, region string) error {
+func (cloud S3CloudStorage) Setup(bucket string, prefix string, test string, client string, secret string, endpointURL string, region string) error {
 	config := aws.Config{}
 	inf := log.Info()
 	if region != "" {
@@ -38,12 +41,26 @@ func (cloud S3CloudStorage) Setup(bucket string, prefix string, client string, s
 	cloud.session = session.Must(session.NewSession(&config))
 	cloud.s3 = s3.New(cloud.session)
 	cloud.bucket = bucket
-	cloud.prefix = prefix
+	cloud.prefix = strings.TrimRight(prefix, "/")
 	inf.Msg("Establishing AWS S3 session...")
-	return cloud.testConnection()
+	return cloud.testConnection(test)
 }
 
-func (cloud S3CloudStorage) testConnection() error {
+func (cloud S3CloudStorage) testConnection(test string) error {
+	helloWorld := fmt.Sprintf("hello %s", time.Now())
+	err := cloud.Put(test, strings.NewReader(helloWorld))
+	if err != nil {
+		return err
+	}
+	buf := &aws.WriteAtBuffer{}
+	err = cloud.Get(test, buf)
+	if err != nil {
+		return err
+	}
+	if !strings.HasPrefix(string(buf.Bytes()), "hello ") {
+		return errors.New("wrong prefix in test file")
+	}
+	return nil
 	//out, err := sts.New(cloud.session).GetCallerIdentity(&sts.GetCallerIdentityInput{})
 	//if err != nil {
 	//	msg := "Failed to establish AWS S3 session"
@@ -58,22 +75,29 @@ func (cloud S3CloudStorage) testConnection() error {
 	//	return err
 	//}
 	//log.Info().Str("arn", aws.StringValue(out.Arn)).Str("user_id", aws.StringValue(out.UserId)).Str("account", aws.StringValue(out.Account)).Msg("AWS S3 session established")
-	return nil
 }
 
-func (cloud S3CloudStorage) Put(path string, reader *io.ReadSeeker) error {
-	ctx := context.Background()
-	key := fmt.Sprintf("%s%s", cloud.prefix, path)
-	_, err := cloud.s3.PutObjectWithContext(ctx, &s3.PutObjectInput{
+func (cloud S3CloudStorage) GetKey(path string) string {
+	return fmt.Sprintf("%s/%s", cloud.prefix, strings.TrimLeft(path, "/"))
+}
+
+func (cloud S3CloudStorage) Put(path string, reader io.Reader) error {
+	key := cloud.GetKey(path)
+	uploader := s3manager.NewUploaderWithClient(cloud.s3)
+	_, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cloud.bucket),
 		Key:    aws.String(key),
-		Body:   *reader,
+		Body:   reader,
 	})
 	return err
 }
 
-func (cloud S3CloudStorage) Get(path string, writer *io.Writer) error {
-	ctx := context.Background()
-	key := fmt.Sprintf("%s%s", cloud.prefix, path)
-
+func (cloud S3CloudStorage) Get(path string, writer io.WriterAt) error {
+	key := cloud.GetKey(path)
+	downloader := s3manager.NewDownloaderWithClient(cloud.s3)
+	_, err := downloader.Download(writer, &s3.GetObjectInput{
+		Bucket: aws.String(cloud.bucket),
+		Key:    aws.String(key),
+	})
+	return err
 }
